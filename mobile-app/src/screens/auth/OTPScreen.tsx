@@ -30,14 +30,13 @@ export default function OTPScreen({ route, navigation }: any) {
   }, [timer]);
 
   const handleOtpChange = (value: string, index: number) => {
-    // Only allow numbers
+
     if (value && !/^\d+$/.test(value)) return;
 
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
-
-    // Auto-focus next input
+    
     if (value && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
@@ -62,13 +61,19 @@ export default function OTPScreen({ route, navigation }: any) {
     setLoading(false);
 
     if (result.success && result.user) {
-      // Check if user profile is complete
-      if (result.user.role === 'patient') {
-        navigation.replace('PatientHomeScreen');
-      } else if (result.user.role === 'phlebotomist') {
-        navigation.replace('PhleboHomeScreen');
+      // Route user based on their role
+      if (result.user.role === 'phlebotomist') {
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'PhleboHomeScreen' }],
+        });
+      } else if (result.user.role === 'patient') {
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'PatientHomeScreen' }],
+        });
       } else {
-        navigation.replace('LoginScreen');
+        Alert.alert('Error', 'User role not recognized');
       }
     } else {
       Alert.alert('Error', result.error || 'Invalid OTP');
@@ -113,7 +118,7 @@ export default function OTPScreen({ route, navigation }: any) {
           {otp.map((digit, index) => (
             <TextInput
               key={index}
-              ref={(ref) => (inputRefs.current[index] = ref)}
+              ref={(ref) => { inputRefs.current[index] = ref; }}
               style={[
                 styles.otpInput,
                 digit ? styles.otpInputFilled : null,
@@ -161,6 +166,7 @@ export default function OTPScreen({ route, navigation }: any) {
 }
 
 const styles = StyleSheet.create({
+  // --- Your styling remains unchanged or as needed ---
   container: {
     flex: 1,
     backgroundColor: '#FCFCF9',

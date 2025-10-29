@@ -12,9 +12,9 @@ export class AuthService {
       if (error) throw error;
       return { success: true, data };
     } catch (error: any) {
-      console.error('Send OTP error:', error);
-      return { success: false, error: error.message };
-    }
+  console.error('Send OTP error:', error);
+  return { success: false, error: error.message || JSON.stringify(error) };
+}
   }
 
   // Verify OTP
@@ -64,11 +64,10 @@ export class AuthService {
     name: string;
     phone: string;
     email?: string;
-    role: string;
   }) {
     try {
       const { data, error } = await supabase
-        .from('users')
+        .from('patients')
         .insert([userData])
         .select()
         .single();
@@ -109,7 +108,7 @@ export class AuthService {
   async getUserById(userId: string): Promise<User | null> {
     try {
       const { data, error } = await supabase
-        .from('users')
+        .from('patients')
         .select('*')
         .eq('id', userId)
         .single();
@@ -126,7 +125,7 @@ export class AuthService {
   async getUserByPhone(phone: string): Promise<User | null> {
     try {
       const { data, error } = await supabase
-        .from('users')
+        .from('patients')
         .select('*')
         .eq('phone', phone)
         .single();

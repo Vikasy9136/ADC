@@ -18,10 +18,9 @@ export default function RegisterScreen({ navigation }: any) {
     name: '',
     phone: '',
     email: '',
-    role: 'patient', // default role
+    role: 'patient', // always patient
   });
   const [loading, setLoading] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<'patient' | 'phlebotomist'>('patient');
 
   const handleInputChange = (field: string, value: string) => {
     setFormData({ ...formData, [field]: value });
@@ -32,17 +31,14 @@ export default function RegisterScreen({ navigation }: any) {
       Alert.alert('Error', 'Please enter your name');
       return false;
     }
-
     if (!formData.phone || formData.phone.length !== 10) {
       Alert.alert('Error', 'Please enter valid 10-digit phone number');
       return false;
     }
-
     if (formData.email && !isValidEmail(formData.email)) {
       Alert.alert('Error', 'Please enter valid email address');
       return false;
     }
-
     return true;
   };
 
@@ -56,19 +52,16 @@ export default function RegisterScreen({ navigation }: any) {
 
     setLoading(true);
 
-    // First, register user in database
     const userData = {
       ...formData,
-      role: selectedRole,
+      // role: 'patient',
       phone: `+91${formData.phone}`,
     };
 
     const registerResult = await authService.register(userData);
 
     if (registerResult.success) {
-      // Then send OTP for verification
       const otpResult = await authService.sendOTP(`+91${formData.phone}`);
-
       setLoading(false);
 
       if (otpResult.success) {
@@ -153,54 +146,6 @@ export default function RegisterScreen({ navigation }: any) {
             value={formData.email}
             onChangeText={(value) => handleInputChange('email', value)}
           />
-        </View>
-
-        {/* Role Selection */}
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Register As *</Text>
-          <View style={styles.roleContainer}>
-            <TouchableOpacity
-              style={[
-                styles.roleButton,
-                selectedRole === 'patient' && styles.roleButtonActive,
-              ]}
-              onPress={() => setSelectedRole('patient')}
-            >
-              <Text style={styles.roleIcon}>👤</Text>
-              <Text
-                style={[
-                  styles.roleText,
-                  selectedRole === 'patient' && styles.roleTextActive,
-                ]}
-              >
-                Patient
-              </Text>
-              <Text style={styles.roleDescription}>
-                Book tests and view reports
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[
-                styles.roleButton,
-                selectedRole === 'phlebotomist' && styles.roleButtonActive,
-              ]}
-              onPress={() => setSelectedRole('phlebotomist')}
-            >
-              <Text style={styles.roleIcon}>🩺</Text>
-              <Text
-                style={[
-                  styles.roleText,
-                  selectedRole === 'phlebotomist' && styles.roleTextActive,
-                ]}
-              >
-                Phlebotomist
-              </Text>
-              <Text style={styles.roleDescription}>
-                Collect samples from patients
-              </Text>
-            </TouchableOpacity>
-          </View>
         </View>
 
         {/* Register Button */}
